@@ -187,13 +187,14 @@ sub sig_message_public {
                 $server->command("msg $target $shortened");
             }
             when ( m/^![\S]*[\s]*[\S]*/i ) {
+            when ( m/^![\w\d]*/i ) {
                 # TODO: mejorar forma de hacer esto
                 my $reference = $msg;
                 $reference =~ s/^![\w]*[\s]*//g;
-                my $option = $msg;
-                $option =~  s/^!//g;
-                $option =~ s/[\t|\s]*//g;
-                my $message = getMessage($option);
+                # Le quito el ! y me quedo solo con la clave
+                $msg =~ s/^!//g;
+                $msg =~ m/^[\w\d]*/;
+                my $message = getMessage($msg);
                 if ( $reference ne "" ) {
                     $server->command("msg $target $reference: $message");
                 } else {

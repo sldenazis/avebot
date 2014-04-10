@@ -186,7 +186,6 @@ sub sig_message_public {
                 my $shortened = shortener( $msg);
                 $server->command("msg $target $shortened");
             }
-            when ( m/^![\S]*[\s]*[\S]*/i ) {
             when ( m/^![\w\d]*/i ) {
                 # TODO: mejorar forma de hacer esto
                 my $reference = $msg;

@@ -1,6 +1,4 @@
 #!/bin/env perl
-#
-### TODO: separar las functions especiales
 
 use strict;
 use warnings;
@@ -19,11 +17,13 @@ our %IRSSI = (
 
 ###{{{ Custom messages
 sub loadMessages {
+    ## FIXME: el file lo toma desde el path de donde se ejecuta irssi
     my $messages_file = "messages.txt";
     my @messages_list = ();
     open (MESSAGES, $messages_file) or return @messages_list;
     @messages_list = <MESSAGES>;
     close (MESSAGES) or return @messages_list;
+    return @messages_list;
 }
 
 our @MESSAGES = loadMessages();
@@ -32,14 +32,18 @@ sub getMessage {
     my $selected = $_[0];
     my $message = "";
     for ( my $option = 0; $option <= $#MESSAGES and $message eq ""; $option++ ) {
-        if ( $MESSAGES[$option] =~ m/^$selected\t[\s]*.*/i ) {
+        if ( $MESSAGES[$option] =~ m/^$selected:[\s]*.*/i ) {
             $message = $MESSAGES[$option];
         }
     }
-    $message =~ s/^[\S]*[\s]*//g;
+    $message =~ s/^[\w\d]*://g;
     return $message;
 }
 ###}}}
+
+sub reloadFile {
+    @MESSAGES = loadMessages();
+}
 
 ###{{{ Test cartas
 our @CARTAS = ({ valor => 1, numero => "Cuatro", palo => "copas" },{ valor => 1, numero => "Cuatro", palo => "oros" },{ valor => 1, numero => "Cuatro", palo => "bastos" },{
@@ -108,7 +112,7 @@ sub flipcoin {
 
 sub sig_message_public {
     # TODO: averiguar de donde sale esto
-    my $my_nick = "avebot";
+    my $my_nick = "kalinixta";
     my $index;
 
     my ( $server, $msg, $nick, $nick_addr, $target ) = @_;
@@ -186,18 +190,29 @@ sub sig_message_public {
                 my $shortened = shortener( $msg);
                 $server->command("msg $target $shortened");
             }
+            when ( m/^!reload$/i ) {
+                if ( $nick eq "buenaventura" ) {
+                    reloadFile();
+                    $server->command("msg $target $nick, done");
+                }
+            }
             when ( m/^![\w\d]*/i ) {
-                # TODO: mejorar forma de hacer esto
+                # Capturo el nick que me estan pasando. TODO: validar si esta presente
                 my $reference = $msg;
                 $reference =~ s/^![\w]*[\s]*//g;
+                $reference =~ s/[\s]*$//g;
                 # Le quito el ! y me quedo solo con la clave
                 $msg =~ s/^!//g;
-                $msg =~ m/^[\w\d]*/;
+                $msg =~ s/[\s]+.*//g;
                 my $message = getMessage($msg);
-                if ( $reference ne "" ) {
-                    $server->command("msg $target $reference: $message");
+                if ( $message ne "" ) {
+                    if ( $reference ne "" ) {
+                        $server->command("msg $target $reference: $message");
+                    } else {
+                        $server->command("msg $target $message");
+                    }
                 } else {
-                    $server->command("msg $target $message");
+                    $server->command("msg $target no sé nada de '$msg'");
                 }
             }
             default {}

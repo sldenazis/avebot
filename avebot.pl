@@ -39,11 +39,11 @@ sub getMessage {
     $message =~ s/^[\w\d]*://g;
     return $message;
 }
-###}}}
 
 sub reloadFile {
     @MESSAGES = loadMessages();
 }
+###}}}
 
 ###{{{ Test cartas
 our @CARTAS = ({ valor => 1, numero => "Cuatro", palo => "copas" },{ valor => 1, numero => "Cuatro", palo => "oros" },{ valor => 1, numero => "Cuatro", palo => "bastos" },{
@@ -97,17 +97,12 @@ sub shortener {
 }
 
 sub flipcoin {
-    my $message = $_[0];
-    my $server = $_[1];
-    my $target = $_[2];
-    my $nick = $_[3];
+    my ($message, $server, $target) = @_;
     my $salio = "cara";
-
     if ( rand(2)%2 eq 0 ) {
         $salio = "seca";
     }
-    
-    $server->command("msg $target $nick tira una moneda y sale $salio");
+    $server->command("action $target tira una moneda y sale $salio");
 }
 
 sub sig_message_public {
@@ -180,10 +175,7 @@ sub sig_message_public {
                 }
             }
             when ( m/^!(moneda|flipcoin)$/i ) {
-                flipcoin($msg, $server, $target, $nick);
-            }
-            when ( m/^[a-z0-9]*\+\+$/i ) {
-                pushDynamic( $msg, $server, $target);
+                flipcoin($msg, $server, $target);
             }
             when ( m/^!tiny htt(p|ps):\/\/[a-z0-9.\/]*$/i ) {
                 $msg =~ s/!tiny //g;
@@ -191,7 +183,7 @@ sub sig_message_public {
                 $server->command("msg $target $shortened");
             }
             when ( m/^!reload$/i ) {
-                if ( $nick eq "buenaventura" ) {
+                if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
                     reloadFile();
                     $server->command("msg $target $nick, done");
                 }

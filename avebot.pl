@@ -129,104 +129,100 @@ sub sig_message_public {
 
     my ( $server, $msg, $nick, $nick_addr, $target ) = @_;
 
-    if ( $nick ne $my_nick) {
-        given($msg) {
-            when ( m/^!fortune$/i ) {
-                my $f_message = `/usr/games/fortune -o`;
-                $server->command("msg $target $f_message");
-            }
-            when ( m/^!devolver[\s]*$/i ) {
-                if ( $mate_ ne $nick ) {
-                    $server->command("msg $target $nick, pero si no tenés el mate!");
-                } else {
-                    $server->command("msg $target $nick, gracias!");
-                    $mate_ = "";
-                }
-            }
-            when ( m/^!(quitar$|quitar[\s]+.*)/i ) {
-                my $reference = getArgs($msg);
-                if ( $reference eq $mate_ ) {
-                    #if ( $nick eq "buenaventura" ) {
-                        $server->command("msg $target $reference, no es micrófono!");
-                        $server->command("action $target le quita el mate a $reference.");
-                        $mate_ = "";
-                    #}
-                }
-            }
-            when ( m/^!(mate$|mate[\s]+.*$)/i ) {
-                my $reference = getArgs($msg);
-                if ( $reference ne "" ) {
-                    if ( $mate_ eq $reference ) {
-                        $server->command("msg $target $nick, pero si $reference ya tiene el mate!");
-                    } else {
-                        if ( $mate_ eq "" ) {
-                            $server->command("action $target le pasa un amargo a $reference.");
-                            $mate_ = $reference;
-                        } elsif ( $mate_ eq $reference ) {
-                            $server->command("msg $target $nick, $reference ya tiene el mate!");
-                        } else {
-                            $server->command("msg $target $nick, el mate lo tiene $mate_!");
-                        }
-                    }
-                } else {
-                    if ( $mate_ eq $nick ) {
-                        $server->command("msg $target primero devolvelo $nick!");
-                    } elsif ( $mate_ ne "" ) {
-                        $server->command("msg $target $nick, pero si el mate lo tiene $mate_!");
-                    } else {
-                        $server->command("action $target le pasa un mate a $nick.");
-                        $mate_ = $nick;
-                    }
-                }
-            }
-            when ( m/^!cartas[\s]*[\S]*$/i ) {
-                my $reference = getArgs($msg);
-                my $cartas = entrega();
-                if ( $reference ne "" ) {
-                    $server->command("msg $target $reference: $cartas");
-                } else {
-                    $server->command("msg $target $nick: $cartas");
-                }
-            }
-            when ( m/^!(moneda|flipcoin)$/i ) {
-                flipcoin($msg, $server, $target);
-            }
-            when ( m/^!tiny htt(p|ps):\/\/[a-z0-9.\/]*$/i ) {
-                $msg =~ s/!tiny //g;
-                my $shortened = shortener($msg);
-                $server->command("msg $target $shortened");
-            }
-            when ( m/^!reload$/i ) {
-                if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
-                    reloadFile();
-                    $server->command("msg $target $nick, done");
-                }
-            }
-            when ( m/^!add[\s]+[\w\s]*/i ) {
-                if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
-                    $msg =~ s/^!add[\s]//g;
-                    pushMessage($msg);
-                    $server->command("msg $target $nick, done");
-                }
-            }
-            when ( m/^![\w\d]*/i ) {
-                my $reference = getArgs($msg);
-                # Le quito el ! y me quedo solo con la clave
-                $msg =~ s/^!//g;
-                $msg =~ s/[\s]+.*//g;
-                my $message = getMessage($msg);
-                if ( $message ne "" ) {
-                    if ( $reference ne "" ) {
-                        $server->command("msg $target $reference: $message");
-                    } else {
-                        $server->command("msg $target $message");
-                    }
-                } else {
-                    $server->command("msg $target no sé nada de '$msg'");
-                }
-            }
-            default {}
+    given($msg) {
+        when ( m/^!fortune$/i ) {
+            my $f_message = `/usr/games/fortune -o`;
+            $server->command("msg $target $f_message");
         }
+        when ( m/^!devolver[\s]*$/i ) {
+            if ( $mate_ ne $nick ) {
+                $server->command("msg $target $nick, pero si no tenés el mate!");
+            } else {
+                $server->command("msg $target $nick, gracias!");
+                $mate_ = "";
+            }
+        }
+        when ( m/^!(quitar$|quitar[\s]+.*)/i ) {
+            my $reference = getArgs($msg);
+            if ( $reference eq $mate_ ) {
+                $server->command("msg $target $reference, no es micrófono!");
+                $server->command("action $target le quita el mate a $reference.");
+                $mate_ = "";
+            }
+        }
+        when ( m/^!(mate$|mate[\s]+.*$)/i ) {
+            my $reference = getArgs($msg);
+            if ( $reference ne "" ) {
+                if ( $mate_ eq $reference ) {
+                    $server->command("msg $target $nick, pero si $reference ya tiene el mate!");
+                } else {
+                    if ( $mate_ eq "" ) {
+                        $server->command("action $target le pasa un amargo a $reference.");
+                        $mate_ = $reference;
+                    } elsif ( $mate_ eq $reference ) {
+                        $server->command("msg $target $nick, $reference ya tiene el mate!");
+                    } else {
+                        $server->command("msg $target $nick, el mate lo tiene $mate_!");
+                    }
+                }
+            } else {
+                if ( $mate_ eq $nick ) {
+                    $server->command("msg $target primero devolvelo $nick!");
+                } elsif ( $mate_ ne "" ) {
+                    $server->command("msg $target $nick, pero si el mate lo tiene $mate_!");
+                } else {
+                    $server->command("action $target le pasa un mate a $nick.");
+                    $mate_ = $nick;
+                }
+            }
+        }
+        when ( m/^!cartas[\s]*[\S]*$/i ) {
+            my $reference = getArgs($msg);
+            my $cartas = entrega();
+            if ( $reference ne "" ) {
+                $server->command("msg $target $reference: $cartas");
+            } else {
+                $server->command("msg $target $nick: $cartas");
+            }
+        }
+        when ( m/^!(moneda|flipcoin)$/i ) {
+            flipcoin($msg, $server, $target);
+        }
+        when ( m/^!tiny htt(p|ps):\/\/[a-z0-9.\/]*$/i ) {
+            $msg =~ s/!tiny //g;
+            my $shortened = shortener($msg);
+            $server->command("msg $target $shortened");
+        }
+        when ( m/^!reload$/i ) {
+            if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
+                reloadFile();
+                $server->command("msg $target $nick, done");
+            }
+        }
+        when ( m/^!add[\s]+[\w\s]*/i ) {
+            if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
+                $msg =~ s/^!add[\s]//g;
+                pushMessage($msg);
+                $server->command("msg $target $nick, done");
+            }
+        }
+        when ( m/^![\w\d]*/i ) {
+            my $reference = getArgs($msg);
+            # Le quito el ! y me quedo solo con la clave
+            $msg =~ s/^!//g;
+            $msg =~ s/[\s]+.*//g;
+            my $message = getMessage($msg);
+            if ( $message ne "" ) {
+                if ( $reference ne "" ) {
+                    $server->command("msg $target $reference: $message");
+                } else {
+                    $server->command("msg $target $message");
+                }
+            } else {
+                $server->command("msg $target no sé nada de '$msg'");
+            }
+        }
+        default {}
     }
 }       
 

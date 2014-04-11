@@ -13,13 +13,13 @@ our %IRSSI = (
     license => 'public domain',
 );
 
-our $messages_file = "messages.txt";
+our $MESSAGES_FILE = "messages.txt";
 
 ###{{{ Custom messages
 sub loadMessages {
     ## FIXME: el file lo toma desde el path de donde se ejecuta irssi
     my @messages_list = ();
-    open (MESSAGES, $messages_file) or return @messages_list;
+    open (MESSAGES, $MESSAGES_FILE) or return @messages_list;
     @messages_list = <MESSAGES>;
     close (MESSAGES) or return @messages_list;
     return @messages_list;
@@ -46,7 +46,7 @@ sub reloadFile {
 sub pushMessage {
     my $message = $_[0];
     if ( $message ne "" ) {
-        open(MESSAGES, ">>" . $messages_file);
+        open(MESSAGES, ">>" . $MESSAGES_FILE);
         print MESSAGES $message . "\n";
         close(MESSAGES);
         reloadFile();

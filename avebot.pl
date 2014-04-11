@@ -100,13 +100,8 @@ sub entrega {
 }
 ###}}}
 
-###{{{ Mate functions
-our $mate_ = "";
-
-sub mate {
-    my ( $message, $server, $target, $action ) = @_;
-    return 0;
-}
+###{{{ Mate
+our $MATE_OWNER = "";
 ###}}}
 
 sub shortener {
@@ -135,44 +130,44 @@ sub sig_message_public {
             $server->command("msg $target $f_message");
         }
         when ( m/^!devolver[\s]*$/i ) {
-            if ( $mate_ ne $nick ) {
+            if ( $MATE_OWNER ne $nick ) {
                 $server->command("msg $target $nick, pero si no tenés el mate!");
             } else {
                 $server->command("msg $target $nick, gracias!");
-                $mate_ = "";
+                $MATE_OWNER = "";
             }
         }
         when ( m/^!(quitar$|quitar[\s]+.*)/i ) {
             my $reference = getArgs($msg);
-            if ( $reference eq $mate_ ) {
+            if ( $reference eq $MATE_OWNER ) {
                 $server->command("msg $target $reference, no es micrófono!");
                 $server->command("action $target le quita el mate a $reference.");
-                $mate_ = "";
+                $MATE_OWNER = "";
             }
         }
         when ( m/^!(mate$|mate[\s]+.*$)/i ) {
             my $reference = getArgs($msg);
             if ( $reference ne "" ) {
-                if ( $mate_ eq $reference ) {
+                if ( $MATE_OWNER eq $reference ) {
                     $server->command("msg $target $nick, pero si $reference ya tiene el mate!");
                 } else {
-                    if ( $mate_ eq "" ) {
+                    if ( $MATE_OWNER eq "" ) {
                         $server->command("action $target le pasa un amargo a $reference.");
-                        $mate_ = $reference;
-                    } elsif ( $mate_ eq $reference ) {
+                        $MATE_OWNER = $reference;
+                    } elsif ( $MATE_OWNER eq $reference ) {
                         $server->command("msg $target $nick, $reference ya tiene el mate!");
                     } else {
-                        $server->command("msg $target $nick, el mate lo tiene $mate_!");
+                        $server->command("msg $target $nick, el mate lo tiene $MATE_OWNER!");
                     }
                 }
             } else {
-                if ( $mate_ eq $nick ) {
+                if ( $MATE_OWNER eq $nick ) {
                     $server->command("msg $target primero devolvelo $nick!");
-                } elsif ( $mate_ ne "" ) {
-                    $server->command("msg $target $nick, pero si el mate lo tiene $mate_!");
+                } elsif ( $MATE_OWNER ne "" ) {
+                    $server->command("msg $target $nick, pero si el mate lo tiene $MATE_OWNER!");
                 } else {
                     $server->command("action $target le pasa un mate a $nick.");
-                    $mate_ = $nick;
+                    $MATE_OWNER = $nick;
                 }
             }
         }

@@ -15,10 +15,11 @@ our %IRSSI = (
     license => 'public domain',
 );
 
+our $messages_file = "messages.txt";
+
 ###{{{ Custom messages
 sub loadMessages {
     ## FIXME: el file lo toma desde el path de donde se ejecuta irssi
-    my $messages_file = "messages.txt";
     my @messages_list = ();
     open (MESSAGES, $messages_file) or return @messages_list;
     @messages_list = <MESSAGES>;
@@ -42,6 +43,26 @@ sub getMessage {
 
 sub reloadFile {
     @MESSAGES = loadMessages();
+}
+
+sub pushMessage {
+    my $message = $_[0];
+    if ( $message ne "" ) {
+        open(MESSAGES, ">>" . $messages_file);
+        print MESSAGES $message . "\n";
+        close(MESSAGES);
+        reloadFile();
+    }
+}
+###}}}
+
+###{{{ Devuelve los argumentos pasados al comando si los hay
+sub getArgs {
+    my $arguments = $_[0];
+    $arguments =~ s/^![\w]*[\s]*//g;
+    ## Quito espacios en blanco del final
+    $arguments =~ s/[\s]*$//g;
+    return $arguments;
 }
 ###}}}
 
@@ -126,9 +147,8 @@ sub sig_message_public {
                     $mate_ = "";
                 }
             }
-            when ( m/^!quitar[\s]*[\S]*$/i ) {
-                my $reference = $msg;
-                $reference =~ s/^![\w]*[\s]*//g;
+            when ( m/^!(quitar$|quitar[\s]+.*)/i ) {
+                my $reference = getArgs($msg);
                 if ( $reference eq $mate_ ) {
                     #if ( $nick eq "buenaventura" ) {
                         $server->command("msg $target $reference, no es micrófono!");
@@ -137,9 +157,8 @@ sub sig_message_public {
                     #}
                 }
             }
-            when ( m/^!mate[\s]*[\S]*$/i ) {
-                my $reference = $msg;
-                $reference =~ s/^![\w]*[\s]*//g;
+            when ( m/^!(mate$|mate[\s]+.*$)/i ) {
+                my $reference = getArgs($msg);
                 if ( $reference ne "" ) {
                     if ( $mate_ eq $reference ) {
                         $server->command("msg $target $nick, pero si $reference ya tiene el mate!");
@@ -165,8 +184,7 @@ sub sig_message_public {
                 }
             }
             when ( m/^!cartas[\s]*[\S]*$/i ) {
-                my $reference = $msg;
-                $reference =~ s/^![\w]*[\s]*//g;
+                my $reference = getArgs($msg);
                 my $cartas = entrega();
                 if ( $reference ne "" ) {
                     $server->command("msg $target $reference: $cartas");
@@ -179,7 +197,7 @@ sub sig_message_public {
             }
             when ( m/^!tiny htt(p|ps):\/\/[a-z0-9.\/]*$/i ) {
                 $msg =~ s/!tiny //g;
-                my $shortened = shortener( $msg);
+                my $shortened = shortener($msg);
                 $server->command("msg $target $shortened");
             }
             when ( m/^!reload$/i ) {
@@ -188,11 +206,15 @@ sub sig_message_public {
                     $server->command("msg $target $nick, done");
                 }
             }
+            when ( m/^!add[\s]+[\w\s]*/i ) {
+                if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
+                    $msg =~ s/^!add[\s]//g;
+                    pushMessage($msg);
+                    $server->command("msg $target $nick, done");
+                }
+            }
             when ( m/^![\w\d]*/i ) {
-                # Capturo el nick que me estan pasando. TODO: validar si esta presente
-                my $reference = $msg;
-                $reference =~ s/^![\w]*[\s]*//g;
-                $reference =~ s/[\s]*$//g;
+                my $reference = getArgs($msg);
                 # Le quito el ! y me quedo solo con la clave
                 $msg =~ s/^!//g;
                 $msg =~ s/[\s]+.*//g;

@@ -127,8 +127,6 @@ sub flipcoin {
 }
 
 sub sig_message_public {
-    # TODO: averiguar de donde sale esto
-    my $my_nick = "kalinixta";
     my $index;
 
     my ( $server, $msg, $nick, $nick_addr, $target ) = @_;

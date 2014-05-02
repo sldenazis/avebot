@@ -104,6 +104,7 @@ sub entrega {
 our $MATE_OWNER = "";
 ###}}}
 
+###{{{ Varias
 sub shortener {
 	my $url = $_[0];
 	my $tin = `curl -s http://tinyurl.com/api-create.php?url=$url`;	
@@ -119,12 +120,46 @@ sub flipcoin {
     $server->command("action $target tira una moneda y sale $salio");
 }
 
+our @NOTES = ({ nick => "test", messages => ["hello world", "bye world"] });
+
+sub hasNotes {
+    ## Devuelvo el index del array o -1
+    my $who = $_[0];
+    my $has_notes = -1;
+
+    for ( my $index = 0; $index le $#NOTES and $who ne $NOTES[$index]{nick} and $has_notes eq 0; $index++ ) {
+        $has_notes = 1 if ( $NOTES[$index]{nick} eq "$who" );
+    }
+    return $has_notes;
+}
+
+sub leaveNote {
+    my ($nick, $who, $note) = @_;
+    my $index = hasNotes($who);
+    my $message = "<" . $nick . "> '" . $note . "'";
+
+    if ( $index ge 0 ) {
+        push ( $NOTES[$index]{messages}, $message );
+    } else {
+        my %new_message = (
+            nick => $who,
+            messages => [ $message ]
+        );
+        push ( @NOTES, %new_message );
+    }
+    print $NOTES[1]{messages}[0];
+}
+###}}}
+
 sub sig_message_public {
     my $index;
 
     my ( $server, $msg, $nick, $nick_addr, $target ) = @_;
 
     given($msg) {
+        when ( m/^!note/ ) {
+            leaveNote( "kalinixta", "buenaventura", "tu vieja" );
+        }
         when ( m/^!fortune$/i ) {
             my $f_message = `/usr/games/fortune -o`;
             $server->command("msg $target $f_message");

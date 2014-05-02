@@ -1,1 +1,1 @@
-=IRC Bot as plugin for Irssi client=
+=== IRC Bot as plugin for Irssi client ===

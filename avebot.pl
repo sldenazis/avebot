@@ -64,42 +64,6 @@ sub getArgs {
 }
 ###}}}
 
-###{{{ Test cartas
-our @CARTAS = ({ valor => 1, numero => "Cuatro", palo => "copas" },{ valor => 1, numero => "Cuatro", palo => "oros" },{ valor => 1, numero => "Cuatro", palo => "bastos" },{
-                 valor => 1, numero => "Cuatro", palo => "espadas" },{ valor => 2, numero => "Cinco", palo => "copas" },{ valor => 2, numero => "Cinco", palo => "oros" },{
-                 valor => 2, numero => "Cinco", palo => "bastos" },{ valor => 2, numero => "Cinco", palo => "espadas" },{ valor => 3, numero => "Séis", palo => "copas" },{
-                 valor => 3, numero => "Séis", palo => "oros" },{ valor => 3, numero => "Séis", palo => "bastos" },{ valor => 3, numero => "Séis", palo => "espadas" },{
-                 valor => 4, numero => "Siete", palo => "Bastos" },{ valor => 4, numero => "Siete", palo => "copas" },{ valor => 5, numero => "Diez", palo => "copas" },{
-                 valor => 5, numero => "Diez", palo => "oros" },{ valor => 5, numero => "Diez", palo => "bastos" },{ valor => 5, numero => "Diez", palo => "espadas" },{
-                 valor => 6, numero => "Once", palo => "copas" },{ valor => 6, numero => "Once", palo => "oros" },{ valor => 6, numero => "Once", palo => "bastos" },{
-                 valor => 6, numero => "Once", palo => "espadas" },{ valor => 7, numero => "Doce", palo => "espadas" },{ valor => 7, numero => "Doce", palo => "copas" },{
-                 valor => 7, numero => "Doce", palo => "oros" },{ valor => 7, numero => "Doce", palo => "bastos" },{ valor => 8, numero => "Ancho", palo => "basto" },{
-                 valor => 8, numero => "Ancho", palo => "oro" },{ valor => 9, numero => "Dos", palo => "bastos" },{ valor => 9, numero => "Dos", palo => "oros" },{
-                 valor => 9, numero => "Dos", palo => "copas" },{ valor => 9, numero => "Dos", palo => "espadas" },{ valor => 10, numero => "Tres", palo => "espadas" },{
-                 valor => 10, numero => "Tres", palo => "oros" },{ valor => 10, numero => "Tres", palo => "copas" },{ valor => 10, numero => "Tres", palo => "bastos" },{
-                 valor => 11, numero => "Siete", palo => "oros" },{ valor => 12, numero => "Siete", palo => "espada" },{ valor => 13, numero => "Ancho", palo => "basto" },{
-                 valor => 14, numero => "Ancho", palo => "espada"});
-
-sub entrega {
-	my $range = $#CARTAS + 1;
-	my $first = int(rand($range));
-	my $second = int(rand($range));
-	my $third = int(rand($range));
-
-	while ( $second eq $first ) {
-		$second = int(rand($range));
-	}
-
-	while ( $third eq $second or $third eq $first ){
-		$third = int(rand($range));
-	}
-
-	my $cartas = "Tenés el " . $CARTAS[$first]{numero} . " de " . $CARTAS[$first]{palo} . ", el " . $CARTAS[$second]{numero} . " de " . $CARTAS[$second]{palo} . " y el " . $CARTAS[$third]{numero} . " de " . $CARTAS[$third]{palo} . "\n";
-
-    return $cartas;
-}
-###}}}
-
 ###{{{ Mate
 our $MATE_OWNER = "";
 ###}}}
@@ -169,15 +133,6 @@ sub sig_message_public {
                     $server->command("action $target le pasa un mate a $nick.");
                     $MATE_OWNER = $nick;
                 }
-            }
-        }
-        when ( m/^!cartas[\s]*[\S]*$/i ) {
-            my $reference = getArgs($msg);
-            my $cartas = entrega();
-            if ( $reference ne "" ) {
-                $server->command("msg $target $reference: $cartas");
-            } else {
-                $server->command("msg $target $nick: $cartas");
             }
         }
         when ( m/^!(moneda|flipcoin)$/i ) {

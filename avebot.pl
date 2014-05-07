@@ -42,7 +42,7 @@ sub getMessage {
             $message = $MESSAGES[$option];
         }
     }
-    $message =~ s/^[\w\d]*://g;
+    $message =~ s/^[\S]*://g;
     return $message;
 }
 
@@ -64,7 +64,7 @@ sub pushMessage {
 ###{{{ Devuelve los argumentos pasados al comando si los hay
 sub getArgs {
     my $arguments = $_[0];
-    $arguments =~ s/^![\w]*[\s]*//g;
+    $arguments =~ s/^![\S]*[\s]*//g;
     ## Quito espacios en blanco del final
     $arguments =~ s/[\s]*$//g;
     return $arguments;
@@ -163,7 +163,7 @@ sub sig_message_public {
                 $server->command("msg $target $nick, permission denied.");
             }
         }
-        when ( m/^![\w\d]*/i ) {
+        when ( m/^![\S]*/i ) {
             my $reference = getArgs($msg);
             # Le quito el ! y me quedo solo con la clave
             $msg =~ s/^!//g;

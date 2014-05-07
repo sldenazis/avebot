@@ -163,7 +163,8 @@ sub sig_message_public {
         }
         when ( m/^!newadmin[\s]+[\S]+@[\S]+/i ) {
             if ( $nick_addr ~~ @OWNERS ) {
-                my $new_admin =~ s/^!newadmin[\s]+//g;
+                my $new_admin = $msg;
+                $new_admin =~ s/^!newadmin[\s]+//g;
                 push( @ADMINS, $new_admin );
                 $server->command("msg $target sure, $nick");
             } else {

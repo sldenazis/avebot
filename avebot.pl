@@ -15,9 +15,8 @@ our %IRSSI = (
 
 ###{{{ Config
 our $MESSAGES_FILE = "messages.txt";
-our $OWNER = '~buenavent@unaffiliated/buenaventura';
-our @ADMINS = (
-    $OWNER
+our @OWNERS = ('~buenavent@unaffiliated/buenaventura');
+our @ADMINS = @OWNERS;
 );
 our $MATE_OWNER = "";
 ###}}}
@@ -147,7 +146,7 @@ sub sig_message_public {
             $server->command("msg $target $shortened");
         }
         when ( m/^!reload$/i ) {
-            if ( $nick_addr eq $OWNER ) {
+            if ( $nick_addr ~~ @OWNERS ) {
                 reloadFile();
                 $server->command("msg $target $nick, done");
             } else {
@@ -159,6 +158,15 @@ sub sig_message_public {
                 $msg =~ s/^!add[\s]//g;
                 pushMessage($msg);
                 $server->command("msg $target $nick, done");
+            } else {
+                $server->command("msg $target $nick, permission denied.");
+            }
+        }
+        when ( m/^!newadmin[\s]+[\S]+@[\S]+/i ) {
+            if ( $nick_addr ~~ @OWNERS ) {
+                my $new_admin =~ s/^!newadmin[\s]+//g;
+                push( @ADMINS, $new_admin );
+                $server->command("msg $target sure, $nick");
             } else {
                 $server->command("msg $target $nick, permission denied.");
             }

@@ -13,7 +13,14 @@ our %IRSSI = (
     license => 'public domain',
 );
 
+###{{{ Config
 our $MESSAGES_FILE = "messages.txt";
+our $OWNER = '~buenavent@unaffiliated/buenaventura';
+our @ADMINS = (
+    $OWNER
+);
+our $MATE_OWNER = "";
+###}}}
 
 ###{{{ Custom messages
 sub loadMessages {
@@ -64,10 +71,6 @@ sub getArgs {
 }
 ###}}}
 
-###{{{ Mate
-our $MATE_OWNER = "";
-###}}}
-
 sub shortener {
 	my $url = $_[0];
 	my $tin = `curl -s http://tinyurl.com/api-create.php?url=$url`;	
@@ -104,7 +107,7 @@ sub sig_message_public {
         when ( m/^!(quitar$|quitar[\s]+.*)/i ) {
             my $reference = getArgs($msg);
             if ( $reference eq $MATE_OWNER ) {
-                $server->command("msg $target $reference, no es micrófono!");
+                $server->command("msg $target $reference, devolvé el mate, no seas void!");
                 $server->command("action $target le quita el mate a $reference.");
                 $MATE_OWNER = "";
             }
@@ -138,22 +141,26 @@ sub sig_message_public {
         when ( m/^!(moneda|flipcoin)$/i ) {
             flipcoin($msg, $server, $target);
         }
-        when ( m/^!tiny htt(p|ps):\/\/[a-z0-9.\/]*$/i ) {
+        when ( m/^!tiny htt(p|ps):\/\/\S*$/i ) {
             $msg =~ s/!tiny //g;
             my $shortened = shortener($msg);
             $server->command("msg $target $shortened");
         }
         when ( m/^!reload$/i ) {
-            if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
+            if ( $nick_addr eq $OWNER ) {
                 reloadFile();
                 $server->command("msg $target $nick, done");
+            } else {
+                $server->command("msg $target $nick, tomatelá guachín");
             }
         }
-        when ( m/^!add[\s]+[\w\s]*/i ) {
-            if ( $nick_addr eq "~buenavent\@unaffiliated/buenaventura" ) {
+        when ( m/^!add[\s]+[\S^:]*/i ) {
+            if ( $nick_addr ~~ @ADMINS ) {
                 $msg =~ s/^!add[\s]//g;
                 pushMessage($msg);
                 $server->command("msg $target $nick, done");
+            } else {
+                $server->command("msg $target $nick, permission denied.");
             }
         }
         when ( m/^![\w\d]*/i ) {

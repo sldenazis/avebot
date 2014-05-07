@@ -17,7 +17,6 @@ our %IRSSI = (
 our $MESSAGES_FILE = "messages.txt";
 our @OWNERS = ('~buenavent@unaffiliated/buenaventura');
 our @ADMINS = @OWNERS;
-);
 our $MATE_OWNER = "";
 ###}}}
 

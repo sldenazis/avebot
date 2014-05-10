@@ -3,6 +3,7 @@ use warnings;
 use feature qw/switch/;
 use Irssi;
 Irssi::signal_add 'message public', 'sig_message_public';
+use avebot::lib::mate;
 
 our $VERSION = '1.00';
 our %IRSSI = (

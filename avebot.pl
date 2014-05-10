@@ -1,4 +1,3 @@
-use lib './lib/';
 use strict;
 use warnings;
 use feature qw/switch/;

@@ -90,6 +90,7 @@ sub sig_message_public {
     my ( $server, $msg, $nick, $nick_addr, $target ) = @_;
 
     given($msg) {
+        when ( m/^!(\*|\?)/ ) { break; }
         when ( m/^!fortune$/i ) {
             my $f_message = `/usr/games/fortune -o`;
             $server->command("msg $target $f_message");
